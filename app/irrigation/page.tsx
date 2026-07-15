@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Droplets, Wind, Thermometer, CloudRain, CheckCircle2, Clock, XCircle, Satellite } from 'lucide-react'
+import { Droplets, Wind, Thermometer, CloudRain, CheckCircle2, Clock, XCircle, Satellite, ChevronLeft } from 'lucide-react'
+import Link from 'next/link'
 import { useLang, t } from '../_context/LangContext'
 
 const weather = [
@@ -94,7 +95,12 @@ export default function IrrigationPage() {
   return (
     <div className="min-h-screen" style={{ background: '#05100a' }}>
       {/* Hero */}
-      <div style={{ background: 'linear-gradient(135deg,#051208,#082010)', borderBottom: '1px solid rgba(34,197,94,0.12)' }} className="relative h-52 flex items-end">
+      <div style={{ background: 'linear-gradient(135deg,#051208,#082010)', borderBottom: '1px solid rgba(34,197,94,0.12)' }} className="relative h-52 flex flex-col justify-between">
+        <div className="px-5 pt-5 max-w-7xl mx-auto w-full">
+          <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-sm font-medium transition-opacity hover:opacity-80" style={{ color: 'rgba(240,250,242,0.4)' }}>
+            <ChevronLeft size={15} /> {t("Boshqaruv paneli", "Dashboard", lang)}
+          </Link>
+        </div>
         <div className="px-5 pb-8 max-w-7xl mx-auto w-full">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center"

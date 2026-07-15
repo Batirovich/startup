@@ -1,7 +1,8 @@
 'use client'
 import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Upload, ScanLine, CheckCircle2, AlertTriangle, XCircle, Leaf, Bug, Zap, RefreshCw } from 'lucide-react'
+import { Upload, ScanLine, CheckCircle2, AlertTriangle, XCircle, Leaf, Bug, Zap, RefreshCw, ChevronLeft } from 'lucide-react'
+import Link from 'next/link'
 import { useLang, t } from '../_context/LangContext'
 
 const diagnoses = [
@@ -52,6 +53,10 @@ export default function PlantDoctor() {
   return (
     <div className="min-h-screen bg-grid" style={{ background: '#040e07' }}>
       <div className="max-w-6xl mx-auto px-5 py-14">
+        <Link href="/dashboard" className="inline-flex items-center gap-2 mb-8 text-sm font-medium transition-colors hover:opacity-80"
+          style={{ color: 'rgba(232,245,234,0.4)' }}>
+          <ChevronLeft size={15} /> {t("Boshqaruv paneli", "Dashboard", lang)}
+        </Link>
         <div className="mb-10">
           <div className="section-accent" />
           <span className="tag tag-g mb-3 inline-flex"><Leaf size={13} />{t("AI O'simlik Shifokori", "AI Plant Doctor", lang)}</span>

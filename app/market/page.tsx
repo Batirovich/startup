@@ -5,10 +5,11 @@ import { motion } from 'framer-motion'
 import { TrendingUp, TrendingDown, Bell, BellOff, MapPin, Clock, ArrowUpRight } from 'lucide-react'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts'
 import AnimatedCounter from '../_components/AnimatedCounter'
+import { useLang, t } from '../_context/LangContext'
 
 const crops = [
   {
-    id: 'tomato', name: 'Tomato', unit: "so'm/kg", icon: '🍅',
+    id: 'tomato', name: 'Tomato', name_uz: 'Pomidor', unit: "so'm/kg", icon: '🍅',
     current: 6500, change: 12.3, positive: true,
     data: [
       { d: 'Jun 1', p: 4200 }, { d: 'Jun 8', p: 4800 }, { d: 'Jun 15', p: 5100 },
@@ -16,12 +17,18 @@ const crops = [
       { d: 'Jul 15', p: 6500 }, { d: 'Jul 22', p: 7100 }, { d: 'Jul 29', p: 7800 },
     ],
     forecast: 7800, forecastDate: 'Jul 29',
-    advice: 'Wait 5 days — price projected to rise 20% due to reduced regional supply.',
+    advice_en: 'Wait 5 days — price projected to rise 20% due to reduced regional supply.',
+    advice_uz: "5 kun kuting — mintaqaviy ta'minot kamayishi sababli narx 20% oshishi kutilmoqda.",
     adviceType: 'hold' as const,
-    regions: [{ name: 'Tashkent', v: 42 }, { name: 'Samarkand', v: 28 }, { name: 'Bukhara', v: 18 }, { name: 'Export', v: 12 }],
+    regions: [
+      { name: 'Tashkent', name_uz: 'Toshkent', v: 42 },
+      { name: 'Samarkand', name_uz: 'Samarqand', v: 28 },
+      { name: 'Bukhara', name_uz: 'Buxoro', v: 18 },
+      { name: 'Export', name_uz: 'Eksport', v: 12 },
+    ],
   },
   {
-    id: 'cotton', name: 'Cotton', unit: "so'm/kg", icon: '🌿',
+    id: 'cotton', name: 'Cotton', name_uz: 'Paxta', unit: "so'm/kg", icon: '🌿',
     current: 12800, change: 3.2, positive: false,
     data: [
       { d: 'Jun 1', p: 14200 }, { d: 'Jun 8', p: 13800 }, { d: 'Jun 15', p: 13500 },
@@ -29,12 +36,17 @@ const crops = [
       { d: 'Jul 15', p: 12800 }, { d: 'Jul 22', p: 12600 }, { d: 'Jul 29', p: 13200 },
     ],
     forecast: 13800, forecastDate: 'Aug 12',
-    advice: 'Hold production. Global cotton futures rising — sell in 3 weeks for 8% premium.',
+    advice_en: 'Hold production. Global cotton futures rising — sell in 3 weeks for 8% premium.',
+    advice_uz: "Ishlab chiqarishni ushlab turing. Global paxta fyucherlari o'smoqda — 3 haftadan so'ng 8% mukofot bilan soting.",
     adviceType: 'hold' as const,
-    regions: [{ name: 'State orders', v: 55 }, { name: 'Export', v: 30 }, { name: 'Local mills', v: 15 }],
+    regions: [
+      { name: 'State orders', name_uz: 'Davlat buyurtmalari', v: 55 },
+      { name: 'Export', name_uz: 'Eksport', v: 30 },
+      { name: 'Local mills', name_uz: 'Mahalliy tegirmonlar', v: 15 },
+    ],
   },
   {
-    id: 'potato', name: 'Potato', unit: "so'm/kg", icon: '🥔',
+    id: 'potato', name: 'Potato', name_uz: 'Kartoshka', unit: "so'm/kg", icon: '🥔',
     current: 2100, change: 5.8, positive: true,
     data: [
       { d: 'Jun 1', p: 1600 }, { d: 'Jun 8', p: 1750 }, { d: 'Jun 15', p: 1900 },
@@ -42,9 +54,14 @@ const crops = [
       { d: 'Jul 15', p: 2100 }, { d: 'Jul 22', p: 2250 }, { d: 'Jul 29', p: 2400 },
     ],
     forecast: 2400, forecastDate: 'Jul 29',
-    advice: 'Sell within 2 weeks. Peak price Jul 29, then seasonal drop begins.',
+    advice_en: 'Sell within 2 weeks. Peak price Jul 29, then seasonal drop begins.',
+    advice_uz: "2 hafta ichida soting. Narx cho'qqisi Jul 29, keyin mavsumiy tushish boshlanadi.",
     adviceType: 'sell' as const,
-    regions: [{ name: 'Retail', v: 48 }, { name: 'Wholesale', v: 32 }, { name: 'Processing', v: 20 }],
+    regions: [
+      { name: 'Retail', name_uz: 'Chakana savdo', v: 48 },
+      { name: 'Wholesale', name_uz: 'Ulgurji savdo', v: 32 },
+      { name: 'Processing', name_uz: 'Qayta ishlash', v: 20 },
+    ],
   },
 ]
 
@@ -59,6 +76,7 @@ const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?:
 }
 
 export default function MarketPage() {
+  const { lang } = useLang()
   const [sel, setSel] = useState(crops[0])
   const [alerts, setAlerts] = useState<Record<string, boolean>>({ tomato: true, cotton: false, potato: false })
 
@@ -74,11 +92,11 @@ export default function MarketPage() {
               style={{ background: 'rgba(240,180,41,0.12)', border: '1px solid rgba(240,180,41,0.25)' }}>
               <TrendingUp size={20} style={{ color: '#f0b429' }} />
             </div>
-            <span className="tag tag-gold">Market Intelligence</span>
+            <span className="tag tag-gold">{t("Bozor Tahlili", "Market Intelligence", lang)}</span>
           </div>
           <h1 className="heading-lg">
-            <span style={{ color: '#f0faf2' }}>Sell at the </span>
-            <span className="text-gradient">perfect moment</span>
+            <span style={{ color: '#f0faf2' }}>{t("To'g'ri vaqtda ", "Sell at the ", lang)}</span>
+            <span className="text-gradient">{t("soting", "perfect moment", lang)}</span>
           </h1>
         </div>
       </div>
@@ -95,7 +113,7 @@ export default function MarketPage() {
                 color: sel.id === c.id ? '#4ade80' : 'rgba(240,250,242,0.5)',
               }}>
               <span className="text-lg">{c.icon}</span>
-              {c.name}
+              {t(c.name_uz, c.name, lang)}
               <span className="text-xs font-bold" style={{ color: c.positive ? '#4ade80' : '#f87171' }}>
                 {c.positive ? '+' : '-'}{c.change}%
               </span>
@@ -107,7 +125,7 @@ export default function MarketPage() {
         <motion.div key={sel.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="glass rounded-2xl p-6 border-gradient">
           <div className="flex items-start justify-between mb-6">
             <div>
-              <p className="text-sm mb-2" style={{ color: 'rgba(240,250,242,0.4)' }}>Live market price — {sel.name}</p>
+              <p className="text-sm mb-2" style={{ color: 'rgba(240,250,242,0.4)' }}>{t("Jonli bozor narxi", "Live market price", lang)} — {t(sel.name_uz, sel.name, lang)}</p>
               <div className="flex items-end gap-3 mb-2">
                 <span className="text-5xl font-black" style={{ color: '#f0faf2' }}>
                   <AnimatedCounter value={sel.current} />
@@ -121,15 +139,15 @@ export default function MarketPage() {
                     color: sel.positive ? '#4ade80' : '#f87171',
                   }}>
                   {sel.positive ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
-                  {sel.positive ? '+' : '-'}{sel.change}% this week
+                  {sel.positive ? '+' : '-'}{sel.change}% {t("bu hafta", "this week", lang)}
                 </span>
                 <div className="flex items-center gap-1 text-xs" style={{ color: 'rgba(240,250,242,0.35)' }}>
-                  <MapPin size={11} /> Tashkent Central Market
+                  <MapPin size={11} /> {t("Toshkent Markaziy Bozori", "Tashkent Central Market", lang)}
                 </div>
               </div>
             </div>
             <div className="text-right">
-              <div className="text-xs mb-1" style={{ color: 'rgba(240,250,242,0.35)' }}>Forecast peak</div>
+              <div className="text-xs mb-1" style={{ color: 'rgba(240,250,242,0.35)' }}>{t("Prognoz cho'qqisi", "Forecast peak", lang)}</div>
               <div className="text-2xl font-black" style={{ color: '#f0b429' }}>{sel.forecast.toLocaleString()}</div>
               <div className="flex items-center justify-end gap-1 text-xs mt-0.5" style={{ color: '#4ade80' }}>
                 <ArrowUpRight size={11} /> +{upside}% by {sel.forecastDate}
@@ -166,23 +184,23 @@ export default function MarketPage() {
                 style={{ background: 'rgba(240,180,41,0.1)', border: '1px solid rgba(240,180,41,0.2)' }}>
                 <TrendingUp size={18} style={{ color: '#f0b429' }} />
               </div>
-              <span className="font-bold" style={{ color: '#f0faf2' }}>AI Sell Advisor</span>
-              <span className="tag tag-gold text-[10px] ml-auto">{sel.adviceType === 'sell' ? 'SELL NOW' : 'HOLD'}</span>
+              <span className="font-bold" style={{ color: '#f0faf2' }}>{t("AI Sotish Maslahatchisi", "AI Sell Advisor", lang)}</span>
+              <span className="tag tag-gold text-[10px] ml-auto">{sel.adviceType === 'sell' ? t("HOZIR SOTING", "SELL NOW", lang) : t("USHLAB TURING", "HOLD", lang)}</span>
             </div>
 
             <div className="p-4 rounded-xl mb-5"
               style={{ background: sel.adviceType === 'sell' ? 'rgba(248,113,113,0.07)' : 'rgba(240,180,41,0.07)', border: `1px solid ${sel.adviceType === 'sell' ? 'rgba(248,113,113,0.18)' : 'rgba(240,180,41,0.18)'}` }}>
               <p className="text-sm font-medium leading-relaxed" style={{ color: sel.adviceType === 'sell' ? '#fca5a5' : '#fde68a' }}>
-                {sel.advice}
+                {t(sel.advice_uz, sel.advice_en, lang)}
               </p>
             </div>
 
             <div className="space-y-3">
               {[
-                { label: 'Forecast peak', value: `${sel.forecast.toLocaleString()} so'm by ${sel.forecastDate}` },
-                { label: 'Best market', value: 'Tashkent Central' },
-                { label: 'Optimal lot', value: '2–5 tonnes' },
-                { label: 'Est. transport', value: '~180,000 so\'m' },
+                { label: t("Prognoz cho'qqisi", 'Forecast peak', lang), value: `${sel.forecast.toLocaleString()} so'm by ${sel.forecastDate}` },
+                { label: t("Eng yaxshi bozor", 'Best market', lang), value: t('Toshkent Markaziy', 'Tashkent Central', lang) },
+                { label: t("Optimal partiya", 'Optimal lot', lang), value: '2–5 tonnes' },
+                { label: t("Taxm. transport", 'Est. transport', lang), value: '~180,000 so\'m' },
               ].map(item => (
                 <div key={item.label} className="flex justify-between text-sm py-1.5"
                   style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
@@ -196,16 +214,16 @@ export default function MarketPage() {
           {/* Market distribution + Alerts */}
           <div className="space-y-4">
             <div className="glass rounded-2xl p-5">
-              <p className="font-bold mb-4" style={{ color: '#f0faf2' }}>Market Distribution</p>
+              <p className="font-bold mb-4" style={{ color: '#f0faf2' }}>{t("Bozor Taqsimoti", "Market Distribution", lang)}</p>
               <div style={{ height: 160 }}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={sel.regions} layout="vertical" barSize={8}>
+                  <BarChart data={sel.regions.map(r => ({ ...r, name: t(r.name_uz, r.name, lang) }))} layout="vertical" barSize={8}>
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(34,197,94,0.05)" horizontal={false} />
                     <XAxis type="number" tick={{ fill: 'rgba(240,250,242,0.35)', fontSize: 10 }} axisLine={false} tickLine={false}
                       tickFormatter={v => `${v}%`} />
                     <YAxis dataKey="name" type="category" tick={{ fill: 'rgba(240,250,242,0.45)', fontSize: 11 }}
                       axisLine={false} tickLine={false} width={85} />
-                    <Tooltip formatter={(v) => [`${v}%`, 'Volume']}
+                    <Tooltip formatter={(v) => [`${v}%`, t('Hajm', 'Volume', lang)]}
                       contentStyle={{ background: 'rgba(5,16,10,0.95)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: 8 }} />
                     <Bar dataKey="v" fill="#22c55e" radius={[0, 4, 4, 0]} fillOpacity={0.75} />
                   </BarChart>
@@ -214,7 +232,7 @@ export default function MarketPage() {
             </div>
 
             <div className="glass rounded-2xl p-5">
-              <p className="font-bold mb-4" style={{ color: '#f0faf2' }}>Price Alerts</p>
+              <p className="font-bold mb-4" style={{ color: '#f0faf2' }}>{t("Narx Ogohlantirishlari", "Price Alerts", lang)}</p>
               <div className="space-y-2">
                 {crops.map(c => (
                   <div key={c.id} className="flex items-center justify-between py-2 px-3 rounded-xl"
@@ -222,9 +240,9 @@ export default function MarketPage() {
                     <div className="flex items-center gap-2">
                       <span>{c.icon}</span>
                       <div>
-                        <p className="text-sm font-medium" style={{ color: '#f0faf2' }}>{c.name}</p>
+                        <p className="text-sm font-medium" style={{ color: '#f0faf2' }}>{t(c.name_uz, c.name, lang)}</p>
                         <p className="text-xs flex items-center gap-1" style={{ color: 'rgba(240,250,242,0.35)' }}>
-                          <Clock size={10} /> Alert at +15%
+                          <Clock size={10} /> {t("+15% da ogohlantirish", "Alert at +15%", lang)}
                         </p>
                       </div>
                     </div>

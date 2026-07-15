@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Link2, Copy, Check, ShieldCheck, Sprout, FlaskConical, Wheat, Snowflake, Truck, Lock } from 'lucide-react'
+import { useLang, t } from '../_context/LangContext'
 
 const harvests = [
   {
@@ -43,18 +44,19 @@ function QRCode({ seed }: { seed: string }) {
   )
 }
 
-const timeline = [
-  { icon: Sprout, label: 'Planted', color: '#22c55e', field: 'planted' },
-  { icon: FlaskConical, label: 'Lab Certified', color: '#38bdf8', field: 'labDate' },
-  { icon: Wheat, label: 'Harvested', color: '#f0b429', field: 'harvested' },
-  { icon: Snowflake, label: 'Cold Storage', color: '#a78bfa', field: 'storage' },
-  { icon: Truck, label: 'Transported', color: '#fb923c', field: 'transport' },
-  { icon: Lock, label: 'Blockchain Sealed', color: '#4ade80', field: 'txHash' },
-]
-
 export default function BlockchainPage() {
+  const { lang } = useLang()
   const [sel, setSel] = useState(harvests[0])
   const [copied, setCopied] = useState(false)
+
+  const timeline = [
+    { icon: Sprout,       label: t("Ekilgan", "Planted", lang),                  color: '#22c55e', field: 'planted' },
+    { icon: FlaskConical, label: t("Lab Sertifikatlangan", "Lab Certified", lang), color: '#38bdf8', field: 'labDate' },
+    { icon: Wheat,        label: t("Yig'ilgan", "Harvested", lang),               color: '#f0b429', field: 'harvested' },
+    { icon: Snowflake,    label: t("Sovuq Saqlash", "Cold Storage", lang),        color: '#a78bfa', field: 'storage' },
+    { icon: Truck,        label: t("Tashilgan", "Transported", lang),             color: '#fb923c', field: 'transport' },
+    { icon: Lock,         label: t("Blokcheynda Muhrlangan", "Blockchain Sealed", lang), color: '#4ade80', field: 'txHash' },
+  ]
 
   function copy() {
     navigator.clipboard.writeText(sel.id)
@@ -73,12 +75,12 @@ export default function BlockchainPage() {
               <Link2 size={20} style={{ color: '#a78bfa' }} />
             </div>
             <span className="tag" style={{ background: 'rgba(167,139,250,0.1)', border: '1px solid rgba(167,139,250,0.28)', color: '#a78bfa' }}>
-              Blockchain Traceability
+              {t("Blokcheyn Kuzatuvchanlik", "Blockchain Traceability", lang)}
             </span>
           </div>
           <h1 className="heading-lg">
-            <span style={{ color: '#f0faf2' }}>Every harvest,</span>
-            <span className="text-gradient"> provably authentic</span>
+            <span style={{ color: '#f0faf2' }}>{t("Har bir hosil,", "Every harvest,", lang)}</span>
+            <span className="text-gradient"> {t("isbotlangan haqiqiy", "provably authentic", lang)}</span>
           </h1>
         </div>
       </div>
@@ -88,7 +90,7 @@ export default function BlockchainPage() {
           {/* Sidebar */}
           <div className="space-y-3">
             <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: 'rgba(240,250,242,0.35)' }}>
-              Harvest Records
+              {t("Hosil Yozuvlari", "Harvest Records", lang)}
             </p>
             {harvests.map(h => (
               <motion.button key={h.id} whileHover={{ scale: 1.01 }} onClick={() => setSel(h)}
@@ -114,7 +116,7 @@ export default function BlockchainPage() {
             ))}
             <button className="w-full py-3 rounded-xl text-sm font-semibold transition-all hover:scale-[1.01]"
               style={{ border: '1px dashed rgba(167,139,250,0.25)', color: 'rgba(167,139,250,0.55)' }}>
-              + Generate New Passport
+              {t("+ Yangi Pasport Yaratish", "+ Generate New Passport", lang)}
             </button>
           </div>
 
@@ -128,7 +130,7 @@ export default function BlockchainPage() {
                 style={{ background: 'linear-gradient(135deg,rgba(167,139,250,0.07),rgba(34,197,94,0.04))' }}>
                 <div className="flex-shrink-0">
                   <QRCode seed={sel.id} />
-                  <p className="text-[10px] text-center mt-2 font-mono" style={{ color: 'rgba(240,250,242,0.35)' }}>Scan to verify</p>
+                  <p className="text-[10px] text-center mt-2 font-mono" style={{ color: 'rgba(240,250,242,0.35)' }}>{t("Tekshirish uchun skaner qiling", "Scan to verify", lang)}</p>
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-3">
@@ -154,10 +156,10 @@ export default function BlockchainPage() {
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     {[
-                      { l: 'Farmer', v: sel.farmer },
-                      { l: 'Farm', v: sel.farm },
-                      { l: 'Region', v: sel.region },
-                      { l: 'Quantity', v: sel.quantity },
+                      { l: t('Fermer', 'Farmer', lang), v: sel.farmer },
+                      { l: t('Ferma', 'Farm', lang), v: sel.farm },
+                      { l: t('Hudud', 'Region', lang), v: sel.region },
+                      { l: t('Miqdor', 'Quantity', lang), v: sel.quantity },
                     ].map(({ l, v }) => (
                       <div key={l}>
                         <p className="text-xs mb-0.5" style={{ color: 'rgba(240,250,242,0.35)' }}>{l}</p>
@@ -171,7 +173,7 @@ export default function BlockchainPage() {
               {/* Timeline */}
               <div className="p-6">
                 <p className="text-xs font-bold uppercase tracking-widest mb-5" style={{ color: 'rgba(240,250,242,0.35)' }}>
-                  Supply Chain
+                  {t("Ta'minot Zanjiri", "Supply Chain", lang)}
                 </p>
                 <div className="space-y-0">
                   {timeline.map((step, i) => {
@@ -208,10 +210,10 @@ export default function BlockchainPage() {
                   <div className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0 pulse-dot" style={{ background: '#a78bfa' }} />
                   <div>
                     <p className="text-xs font-bold mb-1" style={{ color: '#a78bfa' }}>
-                      Immutably stored on {sel.blockchain} — cannot be altered
+                      {t(`${sel.blockchain} da o'zgarmasdan saqlangan — o'zgartirib bo'lmaydi`, `Immutably stored on ${sel.blockchain} — cannot be altered`, lang)}
                     </p>
                     <code className="text-xs break-all" style={{ color: 'rgba(167,139,250,0.5)' }}>
-                      {sel.txHash} · Block #{sel.block.toLocaleString()} · 2,841 confirmations
+                      {sel.txHash} · Block #{sel.block.toLocaleString()} · 2,841 {t("tasdiqlash", "confirmations", lang)}
                     </code>
                   </div>
                 </div>

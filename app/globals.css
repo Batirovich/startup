@@ -5,20 +5,22 @@
   --font-mono: var(--font-geist-mono);
 }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
 
-body {
-  background: #040e07;
-  color: #e8f5ea;
-  font-family: var(--font-geist-sans), -apple-system, sans-serif;
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
+  body {
+    background: #040e07;
+    color: #e8f5ea;
+    font-family: var(--font-geist-sans), -apple-system, sans-serif;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: #040e07; }
+  ::-webkit-scrollbar-thumb { background: #16a34a; border-radius: 4px; }
 }
-
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: #040e07; }
-::-webkit-scrollbar-thumb { background: #16a34a; border-radius: 4px; }
 
 /* ─── All custom classes in @layer components so Tailwind utilities can override ─── */
 @layer components {

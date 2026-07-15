@@ -2,138 +2,146 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { Droplets, Wind, Thermometer, CloudRain, CheckCircle2, Clock, XCircle, Satellite } from 'lucide-react'
 
-const weatherDays = [
-  { day: 'Today', icon: '☀️', temp: 34, rain: 0, wind: 12 },
-  { day: 'Tue', icon: '⛅', temp: 31, rain: 5, wind: 8 },
-  { day: 'Wed', icon: '🌧️', temp: 26, rain: 68, wind: 15 },
-  { day: 'Thu', icon: '🌧️', temp: 24, rain: 80, wind: 18 },
-  { day: 'Fri', icon: '⛅', temp: 28, rain: 20, wind: 10 },
-  { day: 'Sat', icon: '☀️', temp: 33, rain: 0, wind: 9 },
-  { day: 'Sun', icon: '☀️', temp: 35, rain: 0, wind: 11 },
+const weather = [
+  { day: 'Today', icon: '☀️', temp: 34, rain: 0, humidity: 38 },
+  { day: 'Tue',   icon: '⛅', temp: 31, rain: 8,  humidity: 45 },
+  { day: 'Wed',   icon: '🌧️', temp: 26, rain: 68, humidity: 78 },
+  { day: 'Thu',   icon: '🌧️', temp: 24, rain: 72, humidity: 82 },
+  { day: 'Fri',   icon: '⛅', temp: 28, rain: 22, humidity: 55 },
+  { day: 'Sat',   icon: '☀️', temp: 33, rain: 0,  humidity: 40 },
+  { day: 'Sun',   icon: '☀️', temp: 35, rain: 0,  humidity: 35 },
 ]
 
-const crops = ['Tomato', 'Cotton', 'Wheat', 'Potato', 'Corn', 'Pepper']
+const crops = ['Tomato', 'Cotton', 'Wheat', 'Potato', 'Corn', 'Pepper', 'Onion', 'Grape']
 
-const getRecommendation = (crop: string, soilMoisture: number) => {
-  if (soilMoisture > 70) return {
+function getRec(moisture: number, crop: string) {
+  if (moisture > 65) return {
     action: 'DO NOT IRRIGATE',
-    icon: '🚫',
-    color: '#22c55e',
-    reason: 'Soil moisture is high and rain is expected Wednesday. Irrigating now would waste water and risk root rot.',
-    nextIrrigation: 'Thursday morning',
-    waterSaved: Math.floor(Math.random() * 800 + 600),
+    icon: XCircle, color: '#22c55e',
+    reason: `Soil moisture is high (${moisture}%). Rain forecast on Wednesday will add 24mm. Irrigating now risks root rot and wastes 800+ liters.`,
+    waterSaved: 840,
+    next: 'Thursday 6:00 AM',
     schedule: [
-      { time: 'Today', status: 'Skip', note: 'Soil moisture 72% — adequate' },
-      { time: 'Tomorrow', status: 'Skip', note: 'Rain forecast 68%' },
-      { time: 'Wednesday', status: 'Natural Rain', note: 'Expected 24mm rainfall' },
-      { time: 'Thursday 6AM', status: 'Irrigate', note: '45 min — 380L recommended' },
+      { day: 'Today',     action: 'Skip', note: `Moisture ${moisture}% — no action needed`, color: '#22c55e' },
+      { day: 'Tomorrow',  action: 'Skip', note: 'Pre-rain period — conserve water', color: '#22c55e' },
+      { day: 'Wednesday', action: 'Rain', note: 'Natural rainfall 24mm expected', color: '#38bdf8' },
+      { day: 'Thursday',  action: 'Irrigate', note: '45 min drip · 380L', color: '#4ade80' },
     ]
   }
-
-  if (soilMoisture < 35) return {
+  if (moisture < 30) return {
     action: 'IRRIGATE NOW',
-    icon: '💧',
-    color: '#38bdf8',
-    reason: `${crop} needs water urgently. Soil moisture critically low. Heat stress risk is high at 34°C.`,
-    nextIrrigation: 'Today immediately',
+    icon: Droplets, color: '#f87171',
+    reason: `${crop} is under stress. Moisture at ${moisture}% is critically low. Heat at 34°C accelerates wilting — act within the hour.`,
     waterSaved: 0,
+    next: 'Today immediately',
     schedule: [
-      { time: 'Today 7AM', status: 'Irrigate', note: '90 min — 760L recommended' },
-      { time: 'Tomorrow', status: 'Monitor', note: 'Check moisture after watering' },
-      { time: 'Wednesday', status: 'Natural Rain', note: 'Expected 24mm rainfall' },
-      { time: 'Friday', status: 'Irrigate', note: '45 min — 380L recommended' },
+      { day: 'Today',     action: 'Urgent', note: '90 min drip · 760L · do it now', color: '#f87171' },
+      { day: 'Tomorrow',  action: 'Monitor', note: 'Check moisture after watering', color: '#f0b429' },
+      { day: 'Wednesday', action: 'Rain', note: 'Natural rainfall 24mm expected', color: '#38bdf8' },
+      { day: 'Friday',    action: 'Irrigate', note: '45 min drip · 380L', color: '#4ade80' },
     ]
   }
-
   return {
-    action: 'IRRIGATE TOMORROW MORNING',
-    icon: '⏰',
-    color: '#eab308',
-    reason: 'Moisture levels are adequate today. Irrigating tomorrow at 6AM will maximize absorption before the afternoon heat.',
-    nextIrrigation: 'Tomorrow 6:00 AM',
-    waterSaved: Math.floor(Math.random() * 400 + 200),
+    action: 'IRRIGATE TOMORROW 6 AM',
+    icon: Clock, color: '#f0b429',
+    reason: `Moisture is adequate today (${moisture}%). Watering tomorrow at dawn maximises soil absorption before afternoon heat peak of 31°C.`,
+    waterSaved: 420,
+    next: 'Tomorrow 6:00 AM',
     schedule: [
-      { time: 'Today', status: 'Skip', note: 'Moisture sufficient for 24h' },
-      { time: 'Tomorrow 6AM', status: 'Irrigate', note: '60 min — 520L recommended' },
-      { time: 'Wednesday', status: 'Natural Rain', note: 'Expected 24mm rainfall' },
-      { time: 'Friday', status: 'Monitor', note: 'Assess after rain' },
+      { day: 'Today',     action: 'Skip', note: `Moisture ${moisture}% — sufficient`, color: '#22c55e' },
+      { day: 'Tomorrow',  action: 'Irrigate', note: '60 min drip · 520L at 6AM', color: '#4ade80' },
+      { day: 'Wednesday', action: 'Rain', note: 'Natural rainfall 24mm expected', color: '#38bdf8' },
+      { day: 'Friday',    action: 'Monitor', note: 'Reassess after rain', color: '#f0b429' },
     ]
   }
 }
 
 export default function IrrigationPage() {
   const [crop, setCrop] = useState('Tomato')
-  const [soilMoisture, setSoilMoisture] = useState(48)
+  const [moisture, setMoisture] = useState(48)
   const [analyzed, setAnalyzed] = useState(false)
   const [loading, setLoading] = useState(false)
 
-  const rec = getRecommendation(crop, soilMoisture)
+  const rec = getRec(moisture, crop)
+  const RecIcon = rec.icon
+
+  const moistureColor = moisture > 65 ? '#22c55e' : moisture < 30 ? '#f87171' : '#f0b429'
 
   function analyze() {
-    setLoading(true)
     setAnalyzed(false)
-    setTimeout(() => { setLoading(false); setAnalyzed(true) }, 1800)
+    setLoading(true)
+    setTimeout(() => { setLoading(false); setAnalyzed(true) }, 2000)
   }
 
   return (
-    <div className="min-h-screen grid-bg px-4 py-12">
-      <div className="max-w-5xl mx-auto">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold mb-4"
-            style={{ background: 'rgba(56,189,248,0.1)', border: '1px solid rgba(56,189,248,0.25)', color: '#38bdf8' }}>
-            💧 Smart Irrigation AI
+    <div className="min-h-screen" style={{ background: '#05100a' }}>
+      {/* Hero */}
+      <div style={{ background: 'linear-gradient(135deg,#051208,#082010)', borderBottom: '1px solid rgba(34,197,94,0.12)' }} className="relative h-52 flex items-end">
+        <div className="px-5 pb-8 max-w-7xl mx-auto w-full">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center"
+              style={{ background: 'rgba(56,189,248,0.12)', border: '1px solid rgba(56,189,248,0.25)' }}>
+              <Droplets size={20} style={{ color: '#38bdf8' }} />
+            </div>
+            <span className="tag" style={{ background: 'rgba(56,189,248,0.1)', border: '1px solid rgba(56,189,248,0.3)', color: '#38bdf8' }}>
+              Smart Irrigation AI
+            </span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-black mb-3" style={{ color: '#e8f5e9' }}>
-            Water <span className="gradient-text">intelligently,</span><br />not habitually
+          <h1 className="heading-lg">
+            <span style={{ color: '#f0faf2' }}>Water intelligently,</span>
+            <span className="text-gradient"> not habitually</span>
           </h1>
-          <p className="text-lg mb-10" style={{ color: 'rgba(232,245,233,0.55)' }}>
-            AI analyzes weather, soil moisture, and crop type to give precise irrigation schedules. Save up to 40% water.
-          </p>
-        </motion.div>
+        </div>
+      </div>
 
+      <div className="max-w-6xl mx-auto px-5 py-20 space-y-8">
         {/* Weather strip */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-          className="card-glass rounded-2xl p-5 mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <p className="font-semibold" style={{ color: '#e8f5e9' }}>Qashqadaryo, Uzbekistan</p>
-              <p className="text-xs" style={{ color: 'rgba(232,245,233,0.4)' }}>7-day forecast — Updated 5 min ago</p>
+        <div className="glass rounded-2xl p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-2">
+              <Satellite size={16} style={{ color: '#4ade80' }} />
+              <span className="font-semibold" style={{ color: '#f0faf2' }}>Qashqadaryo — Live Weather</span>
+              <span className="tag tag-green text-[10px]">Updated 2min ago</span>
             </div>
-            <div className="text-right">
-              <div className="text-3xl font-black" style={{ color: '#eab308' }}>34°C</div>
-              <div className="text-xs" style={{ color: 'rgba(232,245,233,0.4)' }}>Clear sky</div>
+            <div className="flex items-center gap-4 text-sm" style={{ color: 'rgba(240,250,242,0.5)' }}>
+              <span className="flex items-center gap-1"><Thermometer size={13} /> 34°C</span>
+              <span className="flex items-center gap-1"><Wind size={13} /> 12 km/h</span>
+              <span className="flex items-center gap-1"><Droplets size={13} /> 38% RH</span>
             </div>
           </div>
-          <div className="grid grid-cols-7 gap-2">
-            {weatherDays.map((d, i) => (
-              <div key={i} className="text-center rounded-xl py-3 px-1"
-                style={{ background: i === 0 ? 'rgba(34,197,94,0.1)' : 'rgba(255,255,255,0.02)', border: i === 0 ? '1px solid rgba(34,197,94,0.25)' : '1px solid transparent' }}>
-                <p className="text-xs font-semibold mb-1" style={{ color: i === 0 ? '#22c55e' : 'rgba(232,245,233,0.5)' }}>{d.day}</p>
-                <p className="text-xl mb-1">{d.icon}</p>
-                <p className="text-sm font-bold" style={{ color: '#e8f5e9' }}>{d.temp}°</p>
-                {d.rain > 0 && <p className="text-xs" style={{ color: '#38bdf8' }}>{d.rain}%</p>}
+          <div className="grid grid-cols-7 gap-3">
+            {weather.map((d, i) => (
+              <div key={i} className="text-center rounded-xl py-3 px-1 transition-all"
+                style={{
+                  background: i === 0 ? 'rgba(34,197,94,0.1)' : 'rgba(255,255,255,0.02)',
+                  border: `1px solid ${i === 0 ? 'rgba(34,197,94,0.25)' : 'rgba(255,255,255,0.05)'}`,
+                }}>
+                <p className="text-xs font-bold mb-1" style={{ color: i === 0 ? '#4ade80' : 'rgba(240,250,242,0.4)' }}>{d.day}</p>
+                <p className="text-2xl mb-1">{d.icon}</p>
+                <p className="text-sm font-bold" style={{ color: '#f0faf2' }}>{d.temp}°</p>
+                {d.rain > 0 && <p className="text-[10px] mt-0.5" style={{ color: '#38bdf8' }}>{d.rain}%</p>}
               </div>
             ))}
           </div>
-        </motion.div>
+        </div>
 
-        <div className="grid md:grid-cols-2 gap-6">
-          {/* Config panel */}
-          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.15 }}
-            className="card-glass rounded-2xl p-6">
-            <h2 className="font-bold text-lg mb-5" style={{ color: '#e8f5e9' }}>Farm Settings</h2>
+        <div className="grid lg:grid-cols-2 gap-8">
+          {/* Config */}
+          <div className="glass rounded-2xl p-6">
+            <h2 className="font-bold text-lg mb-5" style={{ color: '#f0faf2' }}>Farm Configuration</h2>
 
-            <div className="mb-5">
-              <label className="text-xs font-semibold uppercase tracking-wider mb-2 block" style={{ color: 'rgba(232,245,233,0.4)' }}>Crop Type</label>
-              <div className="grid grid-cols-3 gap-2">
+            <div className="mb-6">
+              <label className="text-xs font-bold uppercase tracking-widest mb-3 block" style={{ color: 'rgba(240,250,242,0.35)' }}>Crop Type</label>
+              <div className="grid grid-cols-4 gap-2">
                 {crops.map(c => (
                   <button key={c} onClick={() => { setCrop(c); setAnalyzed(false) }}
-                    className="py-2 rounded-lg text-sm font-medium transition-all"
+                    className="py-2 rounded-lg text-xs font-semibold transition-all hover:scale-[1.03]"
                     style={{
-                      background: crop === c ? 'rgba(34,197,94,0.15)' : 'rgba(255,255,255,0.03)',
-                      border: `1px solid ${crop === c ? 'rgba(34,197,94,0.4)' : 'rgba(255,255,255,0.06)'}`,
-                      color: crop === c ? '#22c55e' : 'rgba(232,245,233,0.55)',
+                      background: crop === c ? 'rgba(34,197,94,0.12)' : 'rgba(255,255,255,0.03)',
+                      border: `1px solid ${crop === c ? 'rgba(34,197,94,0.35)' : 'rgba(255,255,255,0.06)'}`,
+                      color: crop === c ? '#4ade80' : 'rgba(240,250,242,0.45)',
                     }}>
                     {c}
                   </button>
@@ -142,117 +150,152 @@ export default function IrrigationPage() {
             </div>
 
             <div className="mb-6">
-              <label className="text-xs font-semibold uppercase tracking-wider mb-2 block" style={{ color: 'rgba(232,245,233,0.4)' }}>
-                Soil Moisture: <span style={{ color: soilMoisture > 60 ? '#22c55e' : soilMoisture > 35 ? '#eab308' : '#ef4444' }}>{soilMoisture}%</span>
-              </label>
-              <input type="range" min={10} max={90} value={soilMoisture}
-                onChange={e => { setSoilMoisture(Number(e.target.value)); setAnalyzed(false) }}
-                className="w-full h-2 rounded-full appearance-none cursor-pointer"
-                style={{ background: `linear-gradient(to right, #22c55e ${soilMoisture}%, rgba(34,197,94,0.15) ${soilMoisture}%)` }} />
-              <div className="flex justify-between text-xs mt-1" style={{ color: 'rgba(232,245,233,0.35)' }}>
-                <span>Dry (10%)</span><span>Optimal (50%)</span><span>Wet (90%)</span>
+              <div className="flex justify-between items-center mb-3">
+                <label className="text-xs font-bold uppercase tracking-widest" style={{ color: 'rgba(240,250,242,0.35)' }}>Soil Moisture</label>
+                <span className="text-2xl font-black" style={{ color: moistureColor }}>{moisture}%</span>
+              </div>
+              <div className="relative h-10 flex items-center">
+                <input type="range" min={10} max={90} value={moisture}
+                  onChange={e => { setMoisture(Number(e.target.value)); setAnalyzed(false) }}
+                  className="w-full h-2 rounded-full appearance-none cursor-pointer"
+                  style={{
+                    background: `linear-gradient(to right, ${moistureColor} ${(moisture - 10) / 80 * 100}%, rgba(255,255,255,0.08) ${(moisture - 10) / 80 * 100}%)`,
+                    outline: 'none',
+                  }} />
+              </div>
+              <div className="flex justify-between text-[10px] mt-1 font-medium" style={{ color: 'rgba(240,250,242,0.25)' }}>
+                <span>DRY (10%)</span><span>OPTIMAL (50%)</span><span>WET (90%)</span>
+              </div>
+              <div className="flex gap-2 mt-3">
+                {[
+                  { label: 'Critical', color: '#f87171', range: '< 30%' },
+                  { label: 'Moderate', color: '#f0b429', range: '30–65%' },
+                  { label: 'Good', color: '#22c55e', range: '> 65%' },
+                ].map(({ label, color, range }) => (
+                  <div key={label} className="flex items-center gap-1.5 text-[10px]" style={{ color: 'rgba(240,250,242,0.4)' }}>
+                    <div className="w-2 h-2 rounded-full" style={{ background: color }} />
+                    {label} {range}
+                  </div>
+                ))}
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3 mb-6">
               {[
-                { label: 'Field Size', value: '2.4 ha', icon: '📐' },
-                { label: 'Irrigation Type', value: 'Drip', icon: '🔧' },
-                { label: 'Growth Stage', value: 'Flowering', icon: '🌸' },
-                { label: 'Last Irrigated', value: '2 days ago', icon: '🕒' },
+                { label: 'Field Area', value: '2.4 ha', icon: '📐' },
+                { label: 'System', value: 'Drip', icon: '🔧' },
+                { label: 'Stage', value: 'Flowering', icon: '🌸' },
+                { label: 'Last watered', value: '2 days ago', icon: '🕒' },
               ].map(item => (
-                <div key={item.label} className="rounded-xl p-3"
-                  style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                  <p className="text-xs mb-1" style={{ color: 'rgba(232,245,233,0.4)' }}>{item.icon} {item.label}</p>
-                  <p className="text-sm font-semibold" style={{ color: '#e8f5e9' }}>{item.value}</p>
+                <div key={item.label} className="rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <p className="text-xs mb-1" style={{ color: 'rgba(240,250,242,0.35)' }}>{item.icon} {item.label}</p>
+                  <p className="text-sm font-semibold" style={{ color: '#f0faf2' }}>{item.value}</p>
                 </div>
               ))}
             </div>
 
             <button onClick={analyze}
-              className="w-full py-3.5 rounded-xl font-bold transition-all hover:scale-[1.02]"
-              style={{ background: 'linear-gradient(135deg,#22c55e,#16a34a)', color: '#000' }}>
-              {loading ? 'Analyzing...' : 'Get AI Recommendation'}
-            </button>
-          </motion.div>
-
-          {/* Result panel */}
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
-            <AnimatePresence mode="wait">
-              {!analyzed && !loading && (
-                <motion.div key="idle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                  className="card-glass rounded-2xl p-6 h-full flex flex-col items-center justify-center text-center min-h-80">
-                  <div className="text-5xl mb-4 float-anim">🌱</div>
-                  <p className="font-semibold mb-2" style={{ color: '#e8f5e9' }}>Configure your farm</p>
-                  <p className="text-sm" style={{ color: 'rgba(232,245,233,0.45)' }}>
-                    Select crop type and adjust soil moisture, then click Analyze to get your AI irrigation schedule.
-                  </p>
-                </motion.div>
+              className="w-full py-3.5 rounded-xl font-bold text-base flex items-center justify-center gap-2 transition-all hover:scale-[1.01]"
+              style={{ background: loading ? 'rgba(34,197,94,0.1)' : 'linear-gradient(135deg,#22c55e,#16a34a)', color: loading ? '#4ade80' : '#000' }}>
+              {loading ? (
+                <>
+                  <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}>
+                    <Satellite size={18} />
+                  </motion.div>
+                  Fetching satellite data...
+                </>
+              ) : (
+                <><CloudRain size={18} /> Get AI Recommendation</>
               )}
+            </button>
+          </div>
 
-              {loading && (
-                <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                  className="card-glass rounded-2xl p-6 h-full flex flex-col items-center justify-center min-h-80">
-                  <div className="text-4xl mb-4">🛰️</div>
-                  <p className="font-semibold mb-2" style={{ color: '#e8f5e9' }}>Processing satellite & weather data...</p>
-                  <div className="w-full mt-4 space-y-2">
-                    {['Fetching OpenWeather data', 'Analyzing soil moisture', 'Calculating evapotranspiration', 'Generating schedule'].map((s, i) => (
-                      <motion.div key={s} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.35 }}
-                        className="flex items-center gap-2 text-sm" style={{ color: 'rgba(232,245,233,0.6)' }}>
-                        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: i * 0.35 + 0.2 }}
-                          className="w-4 h-4 rounded-full flex-shrink-0" style={{ background: 'rgba(34,197,94,0.4)' }} />
-                        {s}
+          {/* Result */}
+          <AnimatePresence mode="wait">
+            {!analyzed && !loading && (
+              <motion.div key="idle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                className="glass rounded-2xl p-8 flex flex-col items-center justify-center text-center min-h-96">
+                <div className="w-20 h-20 rounded-2xl flex items-center justify-center mb-5 float"
+                  style={{ background: 'rgba(56,189,248,0.07)', border: '1px solid rgba(56,189,248,0.15)' }}>
+                  <Droplets size={38} style={{ color: '#38bdf8' }} strokeWidth={1.4} />
+                </div>
+                <p className="font-bold text-xl mb-2" style={{ color: '#f0faf2' }}>Configure & Analyze</p>
+                <p className="text-sm max-w-xs" style={{ color: 'rgba(240,250,242,0.4)' }}>
+                  Set your crop type and soil moisture, then click to get your AI-powered irrigation schedule.
+                </p>
+              </motion.div>
+            )}
+
+            {loading && (
+              <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                className="glass rounded-2xl p-8 flex flex-col items-center justify-center min-h-96">
+                <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-5"
+                  style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)' }}>
+                  <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 2, ease: 'linear' }}>
+                    <Satellite size={30} style={{ color: '#4ade80' }} />
+                  </motion.div>
+                </div>
+                <p className="font-semibold text-lg mb-6" style={{ color: '#f0faf2' }}>Processing satellite data...</p>
+                <div className="w-full space-y-3">
+                  {['OpenWeather API', 'Soil moisture sensors', 'Evapotranspiration model', 'Crop growth stage', 'Generating schedule'].map((s, i) => (
+                    <motion.div key={s} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.35 }}
+                      className="flex items-center gap-3">
+                      <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: i * 0.35 + 0.2 }}
+                        className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
+                        style={{ background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.3)' }}>
+                        <CheckCircle2 size={11} style={{ color: '#4ade80' }} />
                       </motion.div>
+                      <span className="text-sm" style={{ color: 'rgba(240,250,242,0.55)' }}>{s}</span>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
+            {analyzed && (
+              <motion.div key="result" initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }}
+                className="glass rounded-2xl p-6 border-gradient" style={{ borderColor: `${rec.color}25` }}>
+                <div className="p-4 rounded-xl mb-5 flex items-start gap-3"
+                  style={{ background: `${rec.color}0e`, border: `1px solid ${rec.color}22` }}>
+                  <RecIcon size={22} style={{ color: rec.color }} className="flex-shrink-0 mt-0.5" />
+                  <div>
+                    <div className="font-black text-xl mb-1" style={{ color: rec.color }}>{rec.action}</div>
+                    <p className="text-sm leading-relaxed" style={{ color: 'rgba(240,250,242,0.6)' }}>{rec.reason}</p>
+                  </div>
+                </div>
+
+                {rec.waterSaved > 0 && (
+                  <div className="flex items-center gap-3 p-3.5 rounded-xl mb-5"
+                    style={{ background: 'rgba(34,197,94,0.07)', border: '1px solid rgba(34,197,94,0.18)' }}>
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center"
+                      style={{ background: 'rgba(34,197,94,0.12)' }}>
+                      <Droplets size={20} style={{ color: '#4ade80' }} />
+                    </div>
+                    <div>
+                      <div className="font-black text-xl" style={{ color: '#4ade80' }}>{rec.waterSaved}L saved</div>
+                      <div className="text-xs" style={{ color: 'rgba(240,250,242,0.4)' }}>vs. traditional irrigation this week</div>
+                    </div>
+                  </div>
+                )}
+
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: 'rgba(240,250,242,0.35)' }}>Recommended Schedule</p>
+                  <div className="space-y-2.5">
+                    {rec.schedule.map((s, i) => (
+                      <div key={i} className="flex items-center gap-3">
+                        <div className="w-20 text-xs font-semibold flex-shrink-0" style={{ color: 'rgba(240,250,242,0.45)' }}>{s.day}</div>
+                        <span className="px-2.5 py-0.5 rounded-full text-xs font-bold flex-shrink-0"
+                          style={{ background: `${s.color}14`, border: `1px solid ${s.color}28`, color: s.color }}>
+                          {s.action}
+                        </span>
+                        <span className="text-xs" style={{ color: 'rgba(240,250,242,0.4)' }}>{s.note}</span>
+                      </div>
                     ))}
                   </div>
-                </motion.div>
-              )}
-
-              {analyzed && (
-                <motion.div key="result" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-                  className="card-glass rounded-2xl p-6" style={{ borderColor: `${rec.color}30` }}>
-                  <div className="text-center mb-5 py-4 rounded-xl"
-                    style={{ background: `${rec.color}10`, border: `1px solid ${rec.color}25` }}>
-                    <div className="text-3xl mb-2">{rec.icon}</div>
-                    <div className="text-lg font-black" style={{ color: rec.color }}>{rec.action}</div>
-                    <div className="text-xs mt-1" style={{ color: 'rgba(232,245,233,0.5)' }}>for {crop} field</div>
-                  </div>
-
-                  <p className="text-sm mb-4" style={{ color: 'rgba(232,245,233,0.65)' }}>{rec.reason}</p>
-
-                  {rec.waterSaved > 0 && (
-                    <div className="flex items-center gap-3 p-3 rounded-xl mb-4"
-                      style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)' }}>
-                      <span className="text-2xl">💧</span>
-                      <div>
-                        <div className="font-bold" style={{ color: '#22c55e' }}>{rec.waterSaved}L saved this week</div>
-                        <div className="text-xs" style={{ color: 'rgba(232,245,233,0.45)' }}>compared to traditional irrigation</div>
-                      </div>
-                    </div>
-                  )}
-
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: 'rgba(232,245,233,0.4)' }}>Irrigation Schedule</p>
-                    <div className="space-y-2">
-                      {rec.schedule.map((s, i) => (
-                        <div key={i} className="flex items-start gap-3 text-sm">
-                          <span className="font-medium w-32 flex-shrink-0" style={{ color: 'rgba(232,245,233,0.5)' }}>{s.time}</span>
-                          <span className="px-2 py-0.5 rounded-full text-xs font-semibold flex-shrink-0"
-                            style={{
-                              background: s.status === 'Irrigate' ? 'rgba(56,189,248,0.15)' : s.status === 'Skip' ? 'rgba(34,197,94,0.12)' : 'rgba(234,179,8,0.12)',
-                              color: s.status === 'Irrigate' ? '#38bdf8' : s.status === 'Skip' ? '#22c55e' : '#eab308',
-                            }}>
-                            {s.status}
-                          </span>
-                          <span style={{ color: 'rgba(232,245,233,0.45)' }}>{s.note}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </div>
